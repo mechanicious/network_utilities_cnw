@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const experimentIsolatedNodeCount = isolatedNodesCount.reduce((sum, value) => sum+value, 0)/(isolatedNodesCount.length);
         const experimentGraphCliqueNumber = graphCliqueNumber.reduce((sum, value) => sum+value, 0)/(graphCliqueNumber.length);
 
-        alert(`Onderzoek met ${monsterSize} monsters voor G(${n}, ${p}) is voltooid.\n ----\n Gemiddelde aantal driehoeken: ${experimentTriangleCount.toFixed(4)} (Theoretisch: ${theoreticTriangleCount})\n Gemiddelde aantal geïsoleerde knopen: ${experimentIsolatedNodeCount.toFixed(4)} (Theoretisch: ${theoreticIsolatedNodeCount})\n Gemiddelde grootte grootste groep: ${experimentGraphCliqueNumber.toFixed(4)} `);
+        alert(`Onderzoek met ${monsterSize} monsters voor G(${n}, ${p}) is voltooid.\n ----\n Gemiddelde aantal driehoeken: ${experimentTriangleCount.toFixed(4)} (Theoretisch: ${theoreticTriangleCount})\n Gemiddelde aantal geïsoleerde knopen: ${experimentIsolatedNodeCount.toFixed(4)} (Theoretisch: ${theoreticIsolatedNodeCount})\n Gemiddelde grootte grootste clique: ${experimentGraphCliqueNumber.toFixed(4)} `);
     });
 
     window.g = drawERGraph(8, 0.4);
