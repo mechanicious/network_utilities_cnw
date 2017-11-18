@@ -1,0 +1,14 @@
+.probability-range {
+    width: 100%;
+}
+
+.showcase-box {
+    width: 100%;
+    min-height: 300px;
+}
+
+.showcase-box #main {
+    box-sizing: border-box;
+    box-shadow: 0 0 4px #444444;
+    margin: 20px;
+}

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weblab Erdős-Rényi graaf</title>
+    <script src="js/d3.min.js"></script>
+    <script src="js/jsnetworkx.js"></script>
+    <link href="style/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div class="showcase-box">
+        <fieldset>
+            <legend>Erdős-Rényi graaf</legend>
+            <fieldset>
+                <legend>Functies</legend>
+                <button id="doDraw">Nieuwe Graaf</button>
+                <button id="doClearNonTriangularNodes">Toon Driehoeken</button>
+                <button id="doClearConnectedNodes">Toon Geïsoleerde Knopen</button>
+                <button id="doRunEstimation">Onderzoeken...</button>
+            </fieldset>
+            <fieldset>
+                <legend>Variabelen</legend>
+                <div>
+                    n: <label class="probability-range-label" id="g1-node-count-display" for="g1-node-count"></label>
+                    <input class="probability-range" id="g1-node-count" type="range" min="0" max="100" step="1">
+                </div>
+                <div>
+                    p: <label class="probability-range-label" id="g1-probability-display" for="g1-probability"></label>
+                    <input class="probability-range" id="g1-probability" type="range" min="0" max="1" step="0.001">
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Gegevens</legend>
+                <div>
+                    <label class="probability-range-label" id="g1-triangle-count-display" for="g1-triangle-count">Aantal Driehoeken</label>
+                    <input class="probability-range" id="g1-triangle-count" type="number" disabled>
+                </div>
+                <div>
+                    <label class="probability-range-label" id="g1-disconnected-nodes-display" for="g1-disconnected-nodes-count">Aantal Geïsoleerde Knopen</label>
+                    <input class="probability-range" id="g1-disconnected-nodes-count" type="number" disabled>
+                </div>
+                <div>
+                    <label class="probability-range-label" id="g1-largest-component-display" for="g1-largest-component-size">Grootte Grootste Component</label>
+                    <input class="probability-range" id="g1-largest-component-size" type="number" disabled>
+                </div>
+            </fieldset>
+            <div id="main"></div>
+        </fieldset>
+    </div>
+</body>
+<script src="build/main.bundle.js"></script>
+</html>
