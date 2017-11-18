@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
             isolatedNodesCount.push(parseFloat(Math.round(Array.from(jsnx.degree(graph).values()).reduce((sum, value) => value === 0 ? sum+1: sum, 0))));
             graphCliqueNumber.push(jsnx.graphCliqueNumber(graph));
 
-            // New monster
+            // New monster;
             graph = jsnx.gnpRandomGraph(n, p);
         }
 
