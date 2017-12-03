@@ -72,6 +72,8 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 document.addEventListener("DOMContentLoaded", function () {
     var g1p = document.getElementById("g1-probability");
     var g1n = document.getElementById("g1-node-count");
@@ -95,6 +97,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var varsInputd = document.getElementById("varsInput");
     var adjMat = document.getElementById("adjacency-matrix");
+    var nodeDeg = document.getElementById("node-degree");
+    var nodeDegd = document.getElementById("node-degree-display");
     var adjMatd = document.getElementById("adjacency-matrix-display");
     var paths = document.getElementById("paths");
 
@@ -122,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     for (var i = 0; i < fieldGraphType.length; i++) {
         fieldGraphType[i].addEventListener("change", function () {
-            drawERGraph();
+            drawGraph();
         });
     }
 
@@ -177,7 +181,7 @@ document.addEventListener("DOMContentLoaded", function () {
         varsInputd.style.display = "none";
     }
 
-    function drawERGraph() {
+    function drawGraph() {
         var usePreviousGraph = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         var usePreviousGraphConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
@@ -261,6 +265,11 @@ document.addEventListener("DOMContentLoaded", function () {
             };
         }
 
+        var degress = Array.from(jsnx.degree(previousGraph));
+        nodeDeg.innerHTML = "" + [["knoop", "graad"]].concat(_toConsumableArray(degress)).map(function (item) {
+            return item.join("\t");
+        }).join("\n");
+
         if (typeof previousResizeHandler === "function") {
             window.removeEventListener("resize", previousResizeHandler);
         }
@@ -288,8 +297,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         g1ic.value = previousGraph.edges().length === previousGraph.nodes().length * (previousGraph.nodes().length - 1) / 2 ? "ja" : "nee";
 
-        g1cc.value;
-
         try {
             g1tlc.parentNode.display = "block";
             g1tlc.value = parseInt(jsnx.graphCliqueNumber(previousGraph));
@@ -303,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
             clearTimeout(id);
 
             id = setTimeout(function () {
-                drawERGraph(true);
+                drawGraph(true);
             }, 500);
         };
         window.addEventListener("resize", previousResizeHandler);
@@ -323,7 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             previousGraph = jsnx.fromEdgelist(edgeList);
-            drawERGraph(true);
+            drawGraph(true);
         };
 
         reader.onerror = function (evt) {
@@ -353,12 +360,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     [g1p, g1n, g1c, g1r].forEach(function (field) {
         field.addEventListener("change", function () {
-            drawERGraph();
+            drawGraph();
         });
     });
 
     doDraw.addEventListener("click", function () {
-        window.g = drawERGraph(parseInt(g1n.value), parseFloat(g1p.value));
+        window.g = drawGraph(parseInt(g1n.value), parseFloat(g1p.value));
     });
 
     doRemoveNonTriangularNodes.addEventListener("click", function () {
@@ -367,7 +374,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 previousGraph.removeNode(node[0]);
             }
         });
-        window.g = drawERGraph(parseInt(g1n.value), parseFloat(g1p.value), true, false);
+        window.g = drawGraph(parseInt(g1n.value), parseFloat(g1p.value), true, false);
     });
 
     doClearConnectedNodes.addEventListener("click", function () {
@@ -376,7 +383,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 previousGraph.removeNode(node[0]);
             }
         });
-        window.g = drawERGraph(parseInt(g1n.value), parseFloat(g1p.value), true, false);
+        window.g = drawGraph(parseInt(g1n.value), parseFloat(g1p.value), true, false);
     });
 
     doRunEstimation.addEventListener("click", function () {
@@ -423,7 +430,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Onderzoek met " + monsterSize + " monsters voor G(" + n + ", " + p + ") is voltooid.\n ----\n Gemiddelde aantal driehoeken: " + experimentTriangleCount.toFixed(4) + " (Theoretisch: " + theoreticTriangleCount + ")\n Gemiddelde aantal ge\xEFsoleerde knopen: " + experimentIsolatedNodeCount.toFixed(4) + " (Theoretisch: " + theoreticIsolatedNodeCount + ")\n Gemiddelde grootte grootste clique: " + experimentGraphCliqueNumber.toFixed(4) + " ");
     });
 
-    window.g = drawERGraph();
+    window.g = drawGraph();
 });
 
 /***/ })

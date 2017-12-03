@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const varsInputd = document.getElementById("varsInput");
     const adjMat = document.getElementById("adjacency-matrix");
+    const nodeDeg = document.getElementById("node-degree");
+    const nodeDegd = document.getElementById("node-degree-display");
     const adjMatd = document.getElementById("adjacency-matrix-display");
     const paths = document.getElementById("paths");
 
@@ -179,7 +181,10 @@ document.addEventListener("DOMContentLoaded", () => {
             };
         }
 
-
+        const degress = Array.from(jsnx.degree(previousGraph));
+        nodeDeg.innerHTML = `${([["knoop", "graad"], ...degress]).map((item) => {
+            return item.join("\t")
+        }).join("\n")}`;
 
         if(typeof previousResizeHandler === "function") {
             window.removeEventListener("resize", previousResizeHandler);
@@ -203,8 +208,6 @@ document.addEventListener("DOMContentLoaded", () => {
         g1tdc.value = parseInt(Math.round(Array.from(jsnx.degree(previousGraph).values()).reduce((sum, value) => value === 0 ? sum+1: sum, 0)));
 
         g1ic.value = previousGraph.edges().length===previousGraph.nodes().length*(previousGraph.nodes().length-1)/2 ? "ja" : "nee";
-
-        g1cc.value;
 
         try {
             g1tlc.parentNode.display = "block";
