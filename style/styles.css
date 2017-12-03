@@ -1,3 +1,21 @@
+#isCustomFromEdges:checked ~ .upload-field {
+    margin-top: 15px;
+    display: block;
+}
+
+.upload-field {
+    display: none;
+}
+
+fieldset {
+    text-align: left;
+}
+
+input[type="checkbox"] {
+    float: left;
+    display: inline-block;
+}
+
 .probability-range {
     width: 100%;
 }
@@ -11,4 +29,16 @@
     box-sizing: border-box;
     box-shadow: 0 0 4px #444444;
     margin: 20px;
+}
+
+.hint-pop {
+    animation: pop 0.3s linear 1;
+}
+
+#varsInput > div {
+    display: none;
+}
+
+@keyframes pop{
+    50%  {transform: scale(1.02);}
 }

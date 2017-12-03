@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Weblab Erdős-Rényi graaf</title>
+    <title>Weblab Grafen</title>
     <script src="js/d3.min.js"></script>
     <script src="js/jsnetworkx.js"></script>
     <link href="style/styles.css" rel="stylesheet">
@@ -10,7 +10,49 @@
 <body>
     <div class="showcase-box">
         <fieldset>
-            <legend>Erdős-Rényi graaf</legend>
+            <legend>Instellingen</legend>
+            <fieldset>
+                <legend>Soort Graaf</legend>
+                <div>
+                    <input name="graphType" id="isERGraph" type="radio" checked>
+                    <label for="isERGraph">Erdős-Rényi</label>
+                </div>
+
+                <div>
+                    <input name="graphType" id="isCycleGraph" type="radio">
+                    <label for="isCycleGraph">Cykelgraaf</label>
+                </div>
+
+                <div>
+                    <input name="graphType" id="isCompleteGraph" type="radio">
+                    <label for="isCompleteGraph">Volledigegraaf</label>
+                </div>
+
+                <!--<div>-->
+                    <!--<input name="graphType" id="isTreeGraph" type="radio">-->
+                    <!--<label for="isTreeGraph">Boom</label>-->
+                <!--</div>-->
+
+                <div>
+                    <input name="graphType" id="isGrid2dGraph" type="radio">
+                    <label for="isGrid2dGraph">2D Rooster</label>
+                </div>
+                <div>
+                    <input name="graphType" id="isCustomFromEdges" type="radio">
+                    <label for="isCustomFromEdges">Bestand met lijnen</label>
+
+                    <fieldset class="upload-field hint-pop">
+                        <input id="customEdgeGraphFile" type="file">
+                        <legend for="isCustomEdgeGraph">Eigen bestand met lijnen (UTF-8)</legend>
+                        <div class="upload-hint">
+                            <br>
+                            <div>Knopen worden gescheiden door TAB (\t). Lijnen worden gescheiden door ENTER (\n).</div>
+                            <a href="assets/netwerk1.txt" download>Download voorbeeldbestand netwerk1.txt</a>
+                        </div>
+                    </fieldset>
+                </div>
+            </fieldset>
+            <br>
             <fieldset>
                 <legend>Functies</legend>
                 <button id="doDraw">Nieuwe Graaf</button>
@@ -18,17 +60,27 @@
                 <button id="doClearConnectedNodes">Toon Geïsoleerde Knopen</button>
                 <button id="doRunEstimation">Onderzoeken...</button>
             </fieldset>
-            <fieldset>
+            <br>
+            <fieldset id="varsInput">
                 <legend>Variabelen</legend>
                 <div>
                     n: <label class="probability-range-label" id="g1-node-count-display" for="g1-node-count"></label>
-                    <input class="probability-range" id="g1-node-count" type="range" min="0" max="100" step="1">
+                    <input class="probability-range" id="g1-node-count" type="range" min="0" max="100" step="1" value="8">
                 </div>
                 <div>
                     p: <label class="probability-range-label" id="g1-probability-display" for="g1-probability"></label>
-                    <input class="probability-range" id="g1-probability" type="range" min="0" max="1" step="0.001">
+                    <input class="probability-range" id="g1-probability" type="range" min="0" max="1" step="0.001" value="0.4">
+                </div>
+                <div>
+                    aantal rijen: <label class="probability-range-label" id="g1-row-count-display" for="g1-row-count"></label>
+                    <input class="probability-range" id="g1-row-count" type="range" min="0" max="20" step="1" value="2">
+                </div>
+                <div>
+                    aantal kolommen: <label class="probability-range-label" id="g1-column-count-display" for="g1-column-count"></label>
+                    <input class="probability-range" id="g1-column-count" type="range" min="0" max="20" step="1" value="2">
                 </div>
             </fieldset>
+            <br>
             <fieldset>
                 <legend>Gegevens</legend>
                 <div>
@@ -43,8 +95,25 @@
                     <label class="probability-range-label" id="g1-largest-component-display" for="g1-largest-component-size">Grootte Grootste Clique</label>
                     <input class="probability-range" id="g1-largest-component-size" type="number" disabled>
                 </div>
+                <div>
+                    <label class="probability-range-label" id="g1-clique-count-display" for="g1-largest-component-size">Aantal Cliques</label>
+                    <input class="probability-range" id="g1-clique-count" type="number" disabled>
+                </div>
+                <div>
+                    <label class="probability-range-label" id="g1-isComplete-display" for="g1-isComplete">Samenhangend</label>
+                    <span><input class="probability-range" id="g1-isComplete" type="text" disabled></span>
+                </div>
+                <br>
+                <fieldset id="adjacency-matrix-display">
+                    <legend>Adjacency Matrix</legend>
+                    <pre id="adjacency-matrix"></pre>
+                </fieldset>
             </fieldset>
-            <div id="main"></div>
+            <br>
+            <fieldset>
+                <legend>Tekening</legend>
+                <div id="main"></div>
+            </fieldset>
         </fieldset>
     </div>
 </body>

@@ -74,15 +74,40 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 document.addEventListener("DOMContentLoaded", function () {
     var g1p = document.getElementById("g1-probability");
-    var g1pd = document.getElementById("g1-probability-display");
-
     var g1n = document.getElementById("g1-node-count");
+    var g1r = document.getElementById("g1-row-count");
+    var g1c = document.getElementById("g1-column-count");
+    var g1ic = document.getElementById("g1-isComplete");
+
+    var g1icd = document.getElementById("g1-isComplete-display");
+    var g1cc = document.getElementById("g1-clique-count");
+
+    var g1rd = document.getElementById("g1-row-count-display");
+    var g1cd = document.getElementById("g1-column-count-display");
+
+    var g1pd = document.getElementById("g1-probability-display");
     var g1nd = document.getElementById("g1-node-count-display");
 
     var g1tc = document.getElementById("g1-triangle-count");
     var g1tdc = document.getElementById("g1-disconnected-nodes-count");
 
     var g1tlc = document.getElementById("g1-largest-component-size");
+
+    var varsInputd = document.getElementById("varsInput");
+    var adjMat = document.getElementById("adjacency-matrix");
+    var adjMatd = document.getElementById("adjacency-matrix-display");
+    var paths = document.getElementById("paths");
+
+    var fieldGraphType = document.getElementsByName("graphType");
+
+    var isERGraph = document.getElementById("isERGraph");
+    var isCycleGraph = document.getElementById("isCycleGraph");
+    var isCompleteGraph = document.getElementById("isCompleteGraph");
+    var isTreeGraph = document.getElementById("isTreeGraph");
+    var isGrid2dGraph = document.getElementById("isGrid2dGraph");
+    var isCustomFromEdges = document.getElementById("isCustomFromEdges");
+
+    var customEdgeGraphFile = document.getElementById("customEdgeGraphFile");
 
     var doDraw = document.getElementById("doDraw");
     var doRemoveNonTriangularNodes = document.getElementById("doClearNonTriangularNodes");
@@ -95,9 +120,66 @@ document.addEventListener("DOMContentLoaded", function () {
     var previousGraph = void 0;
     var previousGraphConfig = void 0;
 
-    function drawERGraph(nodeCount, boundProbability) {
-        var usePreviousGraph = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-        var usePreviousGraphConfig = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+    for (var i = 0; i < fieldGraphType.length; i++) {
+        fieldGraphType[i].addEventListener("change", function () {
+            drawERGraph();
+        });
+    }
+
+    /**
+     *
+     * @param {Graph} g
+     * @returns {Array<Array<int>>}
+     */
+    function getAdjacencyMatrix(g) {
+        var nodes = g.nodes();
+        var edges = g.edges();
+        var adjMat = [];
+
+        if (isGrid2dGraph.checked === true) {
+            return [[""]];
+        }
+
+        var _loop = function _loop(_i) {
+            adjMat.push([]);
+
+            var _loop2 = function _loop2(j) {
+                var edgeFound = 0;
+                edges.forEach(function (edge) {
+                    if (edge[0] === _i && edge[1] === j || edge[0] === j && edge[1] === _i) {
+                        edgeFound = 1;
+                    }
+                });
+                adjMat[_i][j] = edgeFound;
+            };
+
+            for (var j = 0; j < nodes.length; j++) {
+                _loop2(j);
+            }
+        };
+
+        for (var _i = 0; _i < nodes.length; _i++) {
+            _loop(_i);
+        }
+
+        return adjMat;
+    }
+
+    function initControls() {
+        g1p.parentNode.style.display = "none";
+        g1n.parentNode.style.display = "none";
+        g1r.parentNode.style.display = "none";
+        g1c.parentNode.style.display = "none";
+
+        // Not available for all graphs
+        doRunEstimation.style.display = "none";
+        adjMatd.style.display = "none";
+        varsInputd.style.display = "none";
+    }
+
+    function drawERGraph() {
+        var usePreviousGraph = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+        var usePreviousGraphConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
         // The graph needs to redraw on window resize to recenter itself in the view
         if (usePreviousGraph === false) {
@@ -105,13 +187,58 @@ document.addEventListener("DOMContentLoaded", function () {
                 previousGraph.clear();
             }
 
-            previousGraph = jsnx.gnpRandomGraph(nodeCount, boundProbability);
+            initControls();
+
+            if (isERGraph.checked === true) {
+                previousGraph = window.g = jsnx.erdosRenyiGraph(g1n.value, g1p.value);
+
+                g1p.parentNode.style.display = "block";
+                g1n.parentNode.style.display = "block";
+                adjMatd.style.display = "block";
+                doRunEstimation.style.display = "inline-block";
+                varsInputd.style.display = "block";
+
+                g1nd.innerHTML = g1n.value;
+                g1pd.innerHTML = g1p.value;
+            } else if (isCycleGraph.checked === true) {
+                previousGraph = window.g = jsnx.cycleGraph(g1n.value);
+
+                g1n.parentNode.style.display = "block";
+                adjMatd.style.display = "block";
+                varsInputd.style.display = "block";
+                g1nd.innerHTML = g1n.value;
+            } else if (isCompleteGraph.checked === true) {
+                previousGraph = window.g = jsnx.completeGraph(g1n.value);
+
+                g1n.parentNode.style.display = "block";
+                adjMatd.style.display = "block";
+                varsInputd.style.display = "block";
+                g1nd.innerHTML = g1n.value;
+            }
+            // else if(isTreeGraph.checked === true) {
+            //     previousGraph = jsnx.balancedTree(0.1, 2);
+            // }
+            else if (isGrid2dGraph.checked === true) {
+                    previousGraph = window.g = jsnx.grid2dGraph(g1r.value, g1c.value);
+
+                    g1rd.innerHTML = g1r.value;
+                    g1cd.innerHTML = g1c.value;
+
+                    g1r.parentNode.style.display = "block";
+                    g1c.parentNode.style.display = "block";
+                    varsInputd.style.display = "block";
+                } else if (isCustomFromEdges.checked === true) {
+                    adjMatd.style.display = "block";
+                }
         }
 
         if (usePreviousGraphConfig === false) {
             previousGraphConfig = {
                 element: '#main',
                 withLabels: true,
+                layoutAttr: {
+                    charge: -200
+                },
                 nodeAttr: {
                     r: 15
                 },
@@ -138,15 +265,18 @@ document.addEventListener("DOMContentLoaded", function () {
             window.removeEventListener("resize", previousResizeHandler);
         }
 
-        main.style.height = 150 + Math.log10(Math.pow(nodeCount, 7)) / Math.log10(2) * 15 + "px";
+        /**
+         * Set Adjacency
+         */
+        adjMat.innerHTML = "" + getAdjacencyMatrix(previousGraph).map(function (item) {
+            return item.map(function (bit) {
+                return bit === 1 ? bit : "<span style=\"color: rgba(0, 0, 0, 0.6)\">" + bit + "</span>";
+            }).join("<span style=\"color: rgba(0, 0, 0, 0.6)\">, </span>");
+        }).join("\n");
+
+        main.style.height = 150 + Math.log10(Math.pow(previousGraph.nodes().length, 7)) / Math.log10(2) * 15 + "px";
 
         jsnx.draw(previousGraph, previousGraphConfig);
-
-        g1nd.innerHTML = nodeCount;
-        g1n.value = nodeCount;
-
-        g1pd.innerHTML = boundProbability;
-        g1p.value = boundProbability;
 
         g1tc.value = parseInt(Math.round(Array.from(jsnx.triangles(previousGraph).values()).reduce(function (sum, value) {
             return sum + 1 / 3 * value;
@@ -156,7 +286,16 @@ document.addEventListener("DOMContentLoaded", function () {
             return value === 0 ? sum + 1 : sum;
         }, 0)));
 
-        g1tlc.value = parseInt(jsnx.graphCliqueNumber(previousGraph));
+        g1ic.value = previousGraph.edges().length === previousGraph.nodes().length * (previousGraph.nodes().length - 1) / 2 ? "ja" : "nee";
+
+        g1cc.value;
+
+        try {
+            g1tlc.parentNode.display = "block";
+            g1tlc.value = parseInt(jsnx.graphCliqueNumber(previousGraph));
+        } catch (e) {
+            g1tlc.parentNode.display = "none";
+        }
 
         var id = void 0;
         previousResizeHandler = function previousResizeHandler() {
@@ -164,13 +303,33 @@ document.addEventListener("DOMContentLoaded", function () {
             clearTimeout(id);
 
             id = setTimeout(function () {
-                drawERGraph(nodeCount, boundProbability, true);
+                drawERGraph(true);
             }, 500);
         };
         window.addEventListener("resize", previousResizeHandler);
 
         return previousGraph;
     }
+
+    customEdgeGraphFile.addEventListener("change", function () {
+        var reader = new FileReader();
+        reader.readAsText(customEdgeGraphFile.files[0], "UTF-8");
+
+        reader.onload = function (evt) {
+            var edgeList = evt.target.result.split("\n").map(function (item) {
+                return item.split("\t").map(function (numeric) {
+                    return parseInt(numeric);
+                });
+            });
+
+            previousGraph = jsnx.fromEdgelist(edgeList);
+            drawERGraph(true);
+        };
+
+        reader.onerror = function (evt) {
+            document.getElementById("fileContents").innerHTML = "error reading file";
+        };
+    });
 
     g1p.addEventListener("mousemove", function () {
         document.getElementById("g1-probability-display").innerHTML = g1p.value;
@@ -180,12 +339,22 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("g1-node-count-display").innerHTML = g1n.value;
     });
 
-    g1p.addEventListener("change", function () {
-        drawERGraph(parseInt(g1n.value), parseFloat(g1p.value));
+    g1r.addEventListener("mousemove", function () {
+        document.getElementById("g1-row-count-display").innerHTML = g1r.value;
     });
 
-    g1n.addEventListener("change", function () {
-        drawERGraph(parseInt(g1n.value), parseFloat(g1p.value));
+    g1c.addEventListener("mousemove", function () {
+        document.getElementById("g1-column-count-display").innerHTML = g1c.value;
+    });
+
+    isCustomFromEdges.addEventListener("change", function () {
+        customEdgeGraphFile.value = "";
+    });
+
+    [g1p, g1n, g1c, g1r].forEach(function (field) {
+        field.addEventListener("change", function () {
+            drawERGraph();
+        });
     });
 
     doDraw.addEventListener("click", function () {
@@ -217,7 +386,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         var n = parseInt(g1n.value);
         var p = parseFloat(g1p.value);
-        var graph = jsnx.gnpRandomGraph(n, p);
+        var graph = jsnx.erdosRenyiGraph(n, p);
 
         var theoreticTriangleCount = n * (n - 1) * (n - 2) / 6 * Math.pow(p, 3).toFixed(4);
         var theoreticIsolatedNodeCount = (n * Math.pow(1 - p, n - 1)).toFixed(4);
@@ -228,17 +397,17 @@ document.addEventListener("DOMContentLoaded", function () {
             return alert("Ongeldige invoer \"" + monsterSize + "\".");
         }
 
-        for (var i = 0; i < monsterSize; i++) {
+        for (var _i2 = 0; _i2 < monsterSize; _i2++) {
             triangleCount.push(parseFloat(Math.round(Array.from(jsnx.triangles(graph).values()).reduce(function (sum, value) {
                 return sum + 1 / 3 * value;
             }, 0))));
+
             isolatedNodesCount.push(parseFloat(Math.round(Array.from(jsnx.degree(graph).values()).reduce(function (sum, value) {
                 return value === 0 ? sum + 1 : sum;
             }, 0))));
             graphCliqueNumber.push(jsnx.graphCliqueNumber(graph));
 
-            // New monster;
-            graph = jsnx.gnpRandomGraph(n, p);
+            graph = jsnx.erdosRenyiGraph(n, p);
         }
 
         var experimentTriangleCount = triangleCount.reduce(function (sum, value) {
@@ -254,7 +423,7 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("Onderzoek met " + monsterSize + " monsters voor G(" + n + ", " + p + ") is voltooid.\n ----\n Gemiddelde aantal driehoeken: " + experimentTriangleCount.toFixed(4) + " (Theoretisch: " + theoreticTriangleCount + ")\n Gemiddelde aantal ge\xEFsoleerde knopen: " + experimentIsolatedNodeCount.toFixed(4) + " (Theoretisch: " + theoreticIsolatedNodeCount + ")\n Gemiddelde grootte grootste clique: " + experimentGraphCliqueNumber.toFixed(4) + " ");
     });
 
-    window.g = drawERGraph(8, 0.4);
+    window.g = drawERGraph();
 });
 
 /***/ })
