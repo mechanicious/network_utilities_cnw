@@ -25,7 +25,7 @@
 
                 <div>
                     <input name="graphType" id="isCompleteGraph" type="radio">
-                    <label for="isCompleteGraph">Volledigegraaf</label>
+                    <label for="isCompleteGraph">Volledige graaf</label>
                 </div>
 
                 <!--<div>-->
@@ -104,15 +104,27 @@
                     <span><input class="probability-range" id="g1-isComplete" type="text" disabled></span>
                 </div>
                 <br>
-                <fieldset id="adjacency-matrix-display">
-                    <legend>Adjacency Matrix</legend>
-                    <pre id="adjacency-matrix"></pre>
-                </fieldset>
-                <br>
-                <fieldset id="node-degree-display">
-                    <legend>Graden van Knopen</legend>
-                    <pre id="node-degree"></pre>
-                </fieldset>
+                <table style="width:100%">
+                    <tr>
+                        <td style="width: 18%;">
+                            <fieldset id="node-degree-display">
+                                <legend>Graden van Knopen</legend>
+                                <pre id="node-degree"></pre>
+                            </fieldset>
+                        </td>
+                        <td height="100">
+                            <fieldset id="adjacency-matrix-display">
+                                <legend>Adjacency Matrix</legend>
+                                <pre id="adjacency-matrix"></pre>
+                            </fieldset>
+                        </td>
+                    </tr>
+                    <tr>
+                </table>
+                <div>
+
+
+                </div>
             </fieldset>
             <br>
             <fieldset>

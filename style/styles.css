@@ -16,6 +16,18 @@ input[type="checkbox"] {
     display: inline-block;
 }
 
+#adjacency-matrix-display {
+    display: inline-block;
+}
+table {
+    overflow: auto;
+}
+
+table td {
+    vertical-align: top;
+    height: 100%;
+}
+
 .probability-range {
     width: 100%;
 }

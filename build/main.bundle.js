@@ -72,6 +72,12 @@
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+var _JSNXWrapper = __webpack_require__(1);
+
+var _JSNXWrapper2 = _interopRequireDefault(_JSNXWrapper);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -175,10 +181,17 @@ document.addEventListener("DOMContentLoaded", function () {
         g1r.parentNode.style.display = "none";
         g1c.parentNode.style.display = "none";
 
+        g1icd.style.display = "block";
+        g1ic.style.display = "block";
+
         // Not available for all graphs
         doRunEstimation.style.display = "none";
         adjMatd.style.display = "none";
         varsInputd.style.display = "none";
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function drawGraph() {
@@ -218,23 +231,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 adjMatd.style.display = "block";
                 varsInputd.style.display = "block";
                 g1nd.innerHTML = g1n.value;
+            } else if (isGrid2dGraph.checked === true) {
+                previousGraph = window.g = jsnx.grid2dGraph(g1r.value, g1c.value);
+
+                g1rd.innerHTML = g1r.value;
+                g1cd.innerHTML = g1c.value;
+
+                g1r.parentNode.style.display = "block";
+                g1c.parentNode.style.display = "block";
+                varsInputd.style.display = "block";
+
+                g1icd.style.display = "none";
+                g1ic.style.display = "none";
+            } else if (isCustomFromEdges.checked === true) {
+                adjMatd.style.display = "block";
             }
-            // else if(isTreeGraph.checked === true) {
-            //     previousGraph = jsnx.balancedTree(0.1, 2);
-            // }
-            else if (isGrid2dGraph.checked === true) {
-                    previousGraph = window.g = jsnx.grid2dGraph(g1r.value, g1c.value);
-
-                    g1rd.innerHTML = g1r.value;
-                    g1cd.innerHTML = g1c.value;
-
-                    g1r.parentNode.style.display = "block";
-                    g1c.parentNode.style.display = "block";
-                    varsInputd.style.display = "block";
-                } else if (isCustomFromEdges.checked === true) {
-                    adjMatd.style.display = "block";
-                }
         }
+
+        var gw = new _JSNXWrapper2.default(previousGraph);
 
         if (usePreviousGraphConfig === false) {
             previousGraphConfig = {
@@ -266,7 +280,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         var degress = Array.from(jsnx.degree(previousGraph));
-        nodeDeg.innerHTML = "" + [["knoop", "graad"]].concat(_toConsumableArray(degress)).map(function (item) {
+        nodeDeg.innerHTML = "" + [["knoop", "graad", "som=" + Array.from(jsnx.degree(previousGraph).values()).reduce(function (sum, value) {
+            return sum + value;
+        }, 0)]].concat(_toConsumableArray(degress)).map(function (item) {
             return item.join("\t");
         }).join("\n");
 
@@ -280,7 +296,7 @@ document.addEventListener("DOMContentLoaded", function () {
         adjMat.innerHTML = "" + getAdjacencyMatrix(previousGraph).map(function (item) {
             return item.map(function (bit) {
                 return bit === 1 ? bit : "<span style=\"color: rgba(0, 0, 0, 0.6)\">" + bit + "</span>";
-            }).join("<span style=\"color: rgba(0, 0, 0, 0.6)\">, </span>");
+            }).join(" ");
         }).join("\n");
 
         main.style.height = 150 + Math.log10(Math.pow(previousGraph.nodes().length, 7)) / Math.log10(2) * 15 + "px";
@@ -291,11 +307,20 @@ document.addEventListener("DOMContentLoaded", function () {
             return sum + 1 / 3 * value;
         }, 0)));
 
-        g1tdc.value = parseInt(Math.round(Array.from(jsnx.degree(previousGraph).values()).reduce(function (sum, value) {
+        var isolatedNodeCount = parseInt(Math.round(Array.from(jsnx.degree(previousGraph).values()).reduce(function (sum, value) {
             return value === 0 ? sum + 1 : sum;
         }, 0)));
+        g1tdc.value = isolatedNodeCount;
 
-        g1ic.value = previousGraph.edges().length === previousGraph.nodes().length * (previousGraph.nodes().length - 1) / 2 ? "ja" : "nee";
+        var nodeCount = previousGraph.nodes().length;
+        if (isolatedNodeCount > 0) {
+            g1ic.value = "nee (Aantal Ge\xEFsoleerde Knopen > 0)";
+        } else if (previousGraph.edges().length === nodeCount * (nodeCount - 1) / 2) {
+            g1ic.value = "ja (Volledige Graaf)";
+        } else {
+            var res = gw.isFullyConnected(getRandomInt(previousGraph.nodes()[0], previousGraph.nodes().reverse()[0]));
+            g1ic.value = res === true ? "ja" : "nee (bevat losse component (" + res.join(", ") + "))";
+        }
 
         try {
             g1tlc.parentNode.display = "block";
@@ -329,12 +354,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             });
 
-            previousGraph = jsnx.fromEdgelist(edgeList);
+            window.g = previousGraph = jsnx.fromEdgelist(edgeList);
             drawGraph(true);
-        };
-
-        reader.onerror = function (evt) {
-            document.getElementById("fileContents").innerHTML = "error reading file";
         };
     });
 
@@ -432,6 +453,113 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.g = drawGraph();
 });
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var JSNXWrapper = function () {
+    function JSNXWrapper(g) {
+        _classCallCheck(this, JSNXWrapper);
+
+        this._g = g;
+    }
+
+    _createClass(JSNXWrapper, [{
+        key: "getGraph",
+        value: function getGraph() {
+            return this._g;
+        }
+
+        /**
+         * If the graph contains a clique then it is not fully connected;
+         *
+         * @param {int} u
+         * @returns (Array<int>|true)
+         */
+
+    }, {
+        key: "isFullyConnected",
+        value: function isFullyConnected(u) {
+            var _this = this;
+
+            var visited = [];
+            var walkRecursive = function walkRecursive(begin, previous) {
+                _this._g.edges(previous).forEach(function (edge) {
+                    if (visited.indexOf(edge[1]) === -1) {
+                        visited.push(edge[1]);
+                        walkRecursive(begin, edge[1], visited);
+                    }
+                });
+            };
+
+            walkRecursive(u, u);
+
+            if (visited.length === this._g.nodes().length) {
+                return true;
+            } else {
+                // Return clique
+                return visited;
+            }
+        }
+
+        /**
+         * Check whether u connects to v in graph g;
+         *
+         * Note: will not work for graphs wherein node labels are arrays;
+         *
+         * @param {int} u start point
+         * @param {int} v end point
+         * @returns (Array<Array<int>>|Array<int>)
+         */
+
+    }, {
+        key: "getPaths",
+        value: function getPaths(u, v) {
+            var _this2 = this;
+
+            var paths = [];
+            var walkRecursive = function walkRecursive(endNode, previousNode) {
+                var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+                var beginNode = arguments[3];
+                var step = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+
+                if (previousNode === endNode) {
+                    paths.push(path);
+                } else if (step !== 0 && previousNode === beginNode) {
+                    return;
+                } else {
+                    _this2._g.edges(previousNode).forEach(function (edge) {
+                        if (path.indexOf(edge[1]) === -1) {
+                            walkRecursive(endNode, edge[1], [].concat(_toConsumableArray(path), [edge[1]]), beginNode, step + 1);
+                        }
+                    });
+                }
+            };
+
+            walkRecursive(v, u, [u], u);
+
+            return paths;
+        }
+    }]);
+
+    return JSNXWrapper;
+}();
+
+exports.default = JSNXWrapper;
 
 /***/ })
 /******/ ]);

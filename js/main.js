@@ -1,3 +1,5 @@
+import JSNXWrapper from "./JSNXWrapper";
+
 document.addEventListener("DOMContentLoaded", () => {
     const g1p = document.getElementById("g1-probability");
     const g1n = document.getElementById("g1-node-count");
@@ -91,10 +93,17 @@ document.addEventListener("DOMContentLoaded", () => {
         g1r.parentNode.style.display = "none";
         g1c.parentNode.style.display = "none";
 
+        g1icd.style.display = "block";
+        g1ic.style.display = "block";
+
         // Not available for all graphs
         doRunEstimation.style.display = "none";
         adjMatd.style.display = "none";
         varsInputd.style.display = "none";
+    }
+
+    function getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     function drawGraph(usePreviousGraph = false, usePreviousGraphConfig = false) {
@@ -134,9 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 varsInputd.style.display = "block";
                 g1nd.innerHTML = g1n.value;
             }
-            // else if(isTreeGraph.checked === true) {
-            //     previousGraph = jsnx.balancedTree(0.1, 2);
-            // }
             else if (isGrid2dGraph.checked === true) {
                 previousGraph = window.g = jsnx.grid2dGraph(g1r.value, g1c.value);
 
@@ -147,10 +153,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 g1c.parentNode.style.display = "block";
                 varsInputd.style.display = "block";
 
+                g1icd.style.display = "none";
+                g1ic.style.display = "none";
+
             } else if(isCustomFromEdges.checked === true) {
                 adjMatd.style.display = "block";
             }
         }
+
+        const gw = new JSNXWrapper(previousGraph);
 
         if (usePreviousGraphConfig === false) {
             previousGraphConfig = {
@@ -182,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const degress = Array.from(jsnx.degree(previousGraph));
-        nodeDeg.innerHTML = `${([["knoop", "graad"], ...degress]).map((item) => {
+        nodeDeg.innerHTML = `${([["knoop", "graad", `som=${Array.from(jsnx.degree(previousGraph).values()).reduce((sum, value) => sum+value, 0)}`], ...degress]).map((item) => {
             return item.join("\t")
         }).join("\n")}`;
 
@@ -196,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
         adjMat.innerHTML = `${getAdjacencyMatrix(previousGraph).map((item) => {
             return item.map((bit) => {
                 return bit === 1 ?  bit : `<span style="color: rgba(0, 0, 0, 0.6)">${bit}</span>`;
-            }).join(`<span style="color: rgba(0, 0, 0, 0.6)">, </span>`)
+            }).join(" ")
         }).join("\n")}`;
 
         main.style.height = `${(150+Math.log10(Math.pow(previousGraph.nodes().length, 7))/Math.log10(2)*15)}px`;
@@ -205,9 +216,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
         g1tc.value = parseInt(Math.round(Array.from(jsnx.triangles(previousGraph).values()).reduce((sum, value) => sum+1/3*value, 0)));
 
-        g1tdc.value = parseInt(Math.round(Array.from(jsnx.degree(previousGraph).values()).reduce((sum, value) => value === 0 ? sum+1: sum, 0)));
+        const isolatedNodeCount = parseInt(Math.round(Array.from(jsnx.degree(previousGraph).values()).reduce((sum, value) => value === 0 ? sum+1: sum, 0)));
+        g1tdc.value = isolatedNodeCount;
 
-        g1ic.value = previousGraph.edges().length===previousGraph.nodes().length*(previousGraph.nodes().length-1)/2 ? "ja" : "nee";
+        const nodeCount = previousGraph.nodes().length;
+        if(isolatedNodeCount > 0) {
+            g1ic.value = `nee (Aantal Geïsoleerde Knopen > 0)`;
+        } else if(previousGraph.edges().length === nodeCount*(nodeCount-1)/2) {
+            g1ic.value = `ja (Volledige Graaf)`;
+        }
+        else {
+            const res = gw.isFullyConnected(getRandomInt(previousGraph.nodes()[0], previousGraph.nodes().reverse()[0]));
+            g1ic.value =  res === true ? "ja" : `nee (bevat losse component (${res.join(", ")}))`;
+        }
 
         try {
             g1tlc.parentNode.display = "block";
@@ -241,13 +262,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             });
 
-            previousGraph = jsnx.fromEdgelist(edgeList);
+            window.g = previousGraph = jsnx.fromEdgelist(edgeList);
             drawGraph(true);
         };
-
-        reader.onerror = function (evt) {
-            document.getElementById("fileContents").innerHTML = "error reading file";
-        }
     });
 
     g1p.addEventListener("mousemove", () => {
