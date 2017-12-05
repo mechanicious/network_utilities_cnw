@@ -8,7 +8,7 @@ export default class JSNXWrapper{
     }
 
     /**
-     * If the graph contains a clique then it is not fully connected;
+     * If the graph contains a subgraph then it is not fully connected;
      *
      * @param {int} u
      * @returns (Array<int>|true)
@@ -29,7 +29,7 @@ export default class JSNXWrapper{
         if(visited.length === this._g.nodes().length) {
             return true;
         } else {
-            // Return clique
+            // Return subgraph
             return visited;
         }
     }
