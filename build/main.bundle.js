@@ -76,9 +76,16 @@ var _JSNXWrapper = __webpack_require__(1);
 
 var _JSNXWrapper2 = _interopRequireDefault(_JSNXWrapper);
 
+var _PseudoWeightedEdgeGraph = __webpack_require__(2);
+
+var _PseudoWeightedEdgeGraph2 = _interopRequireDefault(_PseudoWeightedEdgeGraph);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+window.pweg = _PseudoWeightedEdgeGraph2.default;
+window.jsnxw = _JSNXWrapper2.default;
 
 document.addEventListener("DOMContentLoaded", function () {
     var g1p = document.getElementById("g1-probability");
@@ -485,10 +492,10 @@ var JSNXWrapper = function () {
         }
 
         /**
-         * If the graph contains a clique then it is not fully connected;
+         * If the graph contains a subgraph then it is not fully connected;
          *
          * @param {int} u
-         * @returns (Array<int>|true)
+         * @returns (Array<int>|boolean)
          */
 
     }, {
@@ -511,7 +518,7 @@ var JSNXWrapper = function () {
             if (visited.length === this._g.nodes().length) {
                 return true;
             } else {
-                // Return clique
+                // Return subgraph
                 return visited;
             }
         }
@@ -560,6 +567,138 @@ var JSNXWrapper = function () {
 }();
 
 exports.default = JSNXWrapper;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PseudoWeightedEdgeGraph = function () {
+    function PseudoWeightedEdgeGraph(edges) {
+        _classCallCheck(this, PseudoWeightedEdgeGraph);
+
+        this._edges = edges || [[1, 8, 2], [8, 12, 4], [1, 5, 8], [5, 9, 4], [12, 13, 12], [1, 2, 4], [5, 2, 5], [12, 9, 2], [9, 6, 6], [9, 13, 4], [13, 10, 6], [2, 6, 3], [2, 3, 5], [13, 14, 6], [10, 6, 0], [6, 3, 0], [10, 14, 6], [10, 7, 4], [3, 7, 9], [14, 11, 6], [14, 15, 4], [11, 15, 10], [7, 11, 1], [15, 4, 10], [7, 4, 3], [3, 4, 5]];
+    }
+
+    /**
+     * Get edges containing node u;
+     * @param u
+     */
+
+
+    _createClass(PseudoWeightedEdgeGraph, [{
+        key: "getEdge",
+        value: function getEdge(u) {
+            var edges = [];
+            this._edges.forEach(function (edge) {
+                if (edge[0] === u || edge[1] === u) {
+                    var sortedEdge = edge[0] === u ? [edge[0], edge[1], edge[2]] : [edge[1], edge[0], edge[2]];
+                    edges.push(sortedEdge);
+                }
+            });
+
+            return edges;
+        }
+
+        /**
+         * Check whether u connects to v in graph g;
+         *
+         * Note: will not work for graphs wherein node labels are arrays;
+         *
+         * @param {int} u start point
+         * @param {int} v end point
+         * @returns (Array<Array<int>>|Array<int>)
+         */
+
+    }, {
+        key: "getEdgePaths",
+        value: function getEdgePaths(u, v) {
+            var _this = this;
+
+            var edges = [];
+            var walkRecursive = function walkRecursive(endNode, previousNode) {
+                var path = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+                var edgeBag = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];
+                var beginNode = arguments[4];
+                var step = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : 0;
+
+                if (previousNode === endNode) {
+                    edges.push(edgeBag);
+                } else if (step !== 0 && previousNode === beginNode) {
+                    return;
+                } else {
+                    _this.getEdge(previousNode).forEach(function (edge) {
+                        if (path.indexOf(edge[1]) === -1) {
+                            walkRecursive(endNode, edge[1], [].concat(_toConsumableArray(path), [edge[1]]), [].concat(_toConsumableArray(edgeBag), [edge]), beginNode, step + 1);
+                        }
+                    });
+                }
+            };
+
+            walkRecursive(v, u, [u], u);
+
+            return edges;
+        }
+
+        /**
+         * Get shortest path(s); The first index is the distance;
+         *
+         * @param u
+         * @param v
+         * @returns {Array<int, Array<int>>}
+         */
+
+    }, {
+        key: "getShortestPath",
+        value: function getShortestPath(u, v) {
+            var edges = this.getEdgePaths(u, v);
+            var dist = [];
+            var shortestPath = [];
+
+            for (var i = 0; i < edges.length; i++) {
+                dist[i] = null;
+                for (var j = 0; j < edges[i].length; j++) {
+                    if (dist[i] === null) {
+                        dist[i] = edges[i][j][2];
+                    } else {
+                        dist[i] += edges[i][j][2];
+                    }
+                }
+            }
+
+            // Clone dist; need to keep dist unsorted...
+            var sortedDist = JSON.parse(JSON.stringify(dist));
+            sortedDist.sort(function (a, b) {
+                return a - b;
+            });
+
+            // In case there are multiple shortest paths...
+            for (var k = 0; k < sortedDist.length; k++) {
+                if (dist[k] === sortedDist[0]) {
+                    shortestPath.push([dist[k], edges[k]]);
+                }
+            }
+
+            return shortestPath;
+        }
+    }]);
+
+    return PseudoWeightedEdgeGraph;
+}();
+
+exports.default = PseudoWeightedEdgeGraph;
 
 /***/ })
 /******/ ]);

@@ -11,7 +11,7 @@ export default class JSNXWrapper{
      * If the graph contains a subgraph then it is not fully connected;
      *
      * @param {int} u
-     * @returns (Array<int>|true)
+     * @returns (Array<int>|boolean)
      */
     isFullyConnected(u) {
         const visited = [];

@@ -1,4 +1,8 @@
 import JSNXWrapper from "./JSNXWrapper";
+import PseudoWeightedEdgeGraph from "./PseudoWeightedEdgeGraph";
+
+window.pweg = PseudoWeightedEdgeGraph;
+window.jsnxw = JSNXWrapper;
 
 document.addEventListener("DOMContentLoaded", () => {
     const g1p = document.getElementById("g1-probability");
